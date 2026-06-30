@@ -26,6 +26,27 @@ export const caseStudies = [
     demo: 'leadtriage',
   },
   {
+    id: 'crm-assistant',
+    icon: '🤝',
+    title: 'AI CRM Assistant',
+    tagline: 'Context-aware follow-ups and next-best-actions from a customer record',
+    tags: ['CRM', 'AI Agent', 'Sales Ops', 'Streaming'],
+    problem:
+      'Reps spend time re-reading customer history, then writing follow-up emails and deciding next steps from scratch for every account — slow, inconsistent, and easy to let renewals or upsells slip.',
+    approach: [
+      'Grounded the assistant in a structured customer record (plan, history, renewal date) passed as context.',
+      'Multi-turn chat lets a rep ask for a draft email, a history summary, or suggested next actions.',
+      'Responses stream live and arrive ready-to-send, with quick-action prompts for common asks.',
+    ],
+    result: [
+      ['Instant', 'follow-up drafts from history'],
+      ['Context-aware', 'uses the live customer record'],
+      ['Consistent', 'next-actions every time'],
+    ],
+    stack: ['Gemini API', 'Streaming', 'React', 'Vercel'],
+    demo: 'crm',
+  },
+  {
     id: 'tool-agent',
     icon: '🤖',
     title: 'Tool-Using AI Agent',
