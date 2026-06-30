@@ -1,18 +1,16 @@
-import { useEffect } from 'react'
-import ContentGenerator from '../demos/ContentGenerator'
-import Translator from '../demos/Translator'
-import MultiAgentPipeline from '../demos/MultiAgentPipeline'
-import KpiAnalyser from '../demos/KpiAnalyser'
-import CrmAssistant from '../demos/CrmAssistant'
-import N8nExplainer from '../demos/N8nExplainer'
+import { useEffect, lazy, Suspense } from 'react'
+import LoadingDots from './LoadingDots'
 
+// Demos are lazy-loaded so heavy deps (e.g. recharts) stay out of the initial
+// bundle and only download when a visitor actually opens a demo.
 const REGISTRY = {
-  content: ContentGenerator,
-  translator: Translator,
-  pipeline: MultiAgentPipeline,
-  kpi: KpiAnalyser,
-  crm: CrmAssistant,
-  n8n: N8nExplainer,
+  agent: lazy(() => import('../demos/AgentDemo')),
+  leadtriage: lazy(() => import('../demos/LeadTriage')),
+  dashboard: lazy(() => import('../demos/DashboardGenerator')),
+  content: lazy(() => import('../demos/ContentGenerator')),
+  translator: lazy(() => import('../demos/Translator')),
+  crm: lazy(() => import('../demos/CrmAssistant')),
+  n8n: lazy(() => import('../demos/N8nExplainer')),
 }
 
 export default function DemoModal({ project, onClose }) {
@@ -36,7 +34,7 @@ export default function DemoModal({ project, onClose }) {
       onClick={onClose}
     >
       <div
-        className="flex w-full flex-col bg-white sm:max-h-[90vh] sm:max-w-2xl sm:rounded-2xl sm:shadow-2xl"
+        className="flex w-full flex-col bg-white sm:max-h-[90vh] sm:max-w-3xl sm:rounded-2xl sm:shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
@@ -59,7 +57,9 @@ export default function DemoModal({ project, onClose }) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-5">
-          {DemoComponent ? <DemoComponent /> : <p>Demo coming soon.</p>}
+          <Suspense fallback={<div className="py-8 text-center"><LoadingDots label="Loading demo" /></div>}>
+            {DemoComponent ? <DemoComponent /> : <p>Demo coming soon.</p>}
+          </Suspense>
         </div>
       </div>
     </div>

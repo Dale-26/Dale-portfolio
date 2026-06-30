@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { callClaude } from '../lib/claude'
+import { streamClaude } from '../lib/claude'
 import { PORTFOLIO_SYSTEM_PROMPT } from '../lib/prompts'
 import LoadingDots from './LoadingDots'
 import ErrorMessage from './ErrorMessage'
@@ -44,11 +44,25 @@ export default function ChatAgent() {
         .filter((m) => m !== GREETING)
         .map((m) => ({ role: m.role, content: m.content }))
 
-      const reply = await callClaude({
+      // Stream the reply: append an assistant bubble on the first token,
+      // then grow its content as deltas arrive.
+      let started = false
+      await streamClaude({
         system: PORTFOLIO_SYSTEM_PROMPT,
         messages: apiMessages,
+        onChunk: (delta) => {
+          setMessages((prev) => {
+            if (!started) {
+              started = true
+              return [...prev, { role: 'assistant', content: delta }]
+            }
+            const copy = prev.slice()
+            const last = copy[copy.length - 1]
+            copy[copy.length - 1] = { ...last, content: last.content + delta }
+            return copy
+          })
+        },
       })
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }])
     } catch (err) {
       setError(err.message)
     } finally {
@@ -82,7 +96,7 @@ export default function ChatAgent() {
           </div>
         ))}
 
-        {loading && (
+        {loading && messages[messages.length - 1]?.role === 'user' && (
           <div className="flex justify-start">
             <div className="rounded-2xl rounded-bl-sm bg-slate-100 px-4 py-3">
               <LoadingDots />

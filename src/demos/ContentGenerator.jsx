@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { callClaude } from '../lib/claude'
+import { streamClaude } from '../lib/claude'
 import { CONTENT_GENERATOR_PROMPT } from '../lib/prompts'
 import LoadingDots from '../components/LoadingDots'
 import ErrorMessage from '../components/ErrorMessage'
@@ -27,13 +27,15 @@ export default function ContentGenerator() {
     setResult(null)
     setLoading(true)
     try {
-      const text = await callClaude({
+      let raw = ''
+      await streamClaude({
         system: CONTENT_GENERATOR_PROMPT,
-        messages: [
-          { role: 'user', content: `Topic: ${topic}\nTone: ${tone}` },
-        ],
+        messages: [{ role: 'user', content: `Topic: ${topic}\nTone: ${tone}` }],
+        onChunk: (delta) => {
+          raw += delta
+          setResult(parse(raw))
+        },
       })
-      setResult(parse(text))
     } catch (err) {
       setError(err.message)
     } finally {
@@ -78,7 +80,7 @@ export default function ContentGenerator() {
         </div>
       </form>
 
-      {loading && <LoadingDots label="Writing posts" />}
+      {loading && !result && <LoadingDots label="Writing posts" />}
       <ErrorMessage message={error} />
 
       {result && (

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { callClaude } from '../lib/claude'
+import { streamClaude } from '../lib/claude'
 import { TRANSLATOR_PROMPT } from '../lib/prompts'
 import LoadingDots from '../components/LoadingDots'
 import ErrorMessage from '../components/ErrorMessage'
@@ -30,16 +30,17 @@ export default function Translator() {
     setResult(null)
     setLoading(true)
     try {
-      const out = await callClaude({
+      let raw = ''
+      await streamClaude({
         system: TRANSLATOR_PROMPT,
         messages: [
-          {
-            role: 'user',
-            content: `Direction: ${direction}\nTone: ${tone}\n\nText:\n${text}`,
-          },
+          { role: 'user', content: `Direction: ${direction}\nTone: ${tone}\n\nText:\n${text}` },
         ],
+        onChunk: (delta) => {
+          raw += delta
+          setResult(parse(raw))
+        },
       })
-      setResult(parse(out))
     } catch (err) {
       setError(err.message)
     } finally {
@@ -92,7 +93,7 @@ export default function Translator() {
         </button>
       </form>
 
-      {loading && <LoadingDots label="Translating" />}
+      {loading && !result && <LoadingDots label="Translating" />}
       <ErrorMessage message={error} />
 
       {result && (

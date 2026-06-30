@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { system, messages, max_tokens } = req.body || {}
+    const { system, messages, max_tokens, response_schema } = req.body || {}
 
     if (!Array.isArray(messages) || messages.length === 0) {
       res.status(400).json({ error: 'Request must include a non-empty "messages" array.' })
@@ -38,9 +38,16 @@ export default async function handler(req, res) {
       parts: [{ text: m.content }],
     }))
 
+    const generationConfig = { maxOutputTokens: max_tokens || 1024 }
+    // When a JSON schema is supplied, force schema-validated JSON output.
+    if (response_schema) {
+      generationConfig.responseMimeType = 'application/json'
+      generationConfig.responseSchema = response_schema
+    }
+
     const body = {
       contents,
-      generationConfig: { maxOutputTokens: max_tokens || 1024 },
+      generationConfig,
       ...(system ? { system_instruction: { parts: [{ text: system }] } } : {}),
     }
 

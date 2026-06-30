@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { callClaude } from '../lib/claude'
+import { streamClaude } from '../lib/claude'
 import { CRM_ASSISTANT_PROMPT } from '../lib/prompts'
 import LoadingDots from '../components/LoadingDots'
 import ErrorMessage from '../components/ErrorMessage'
@@ -54,11 +54,23 @@ export default function CrmAssistant() {
           ? { role: 'user', content: `${RECORD_CONTEXT}\n\nRequest: ${m.content}` }
           : { role: m.role, content: m.content },
       )
-      const reply = await callClaude({
+      let started = false
+      await streamClaude({
         system: CRM_ASSISTANT_PROMPT,
         messages: apiMessages,
+        onChunk: (delta) => {
+          setMessages((prev) => {
+            if (!started) {
+              started = true
+              return [...prev, { role: 'assistant', content: delta }]
+            }
+            const copy = prev.slice()
+            const last = copy[copy.length - 1]
+            copy[copy.length - 1] = { ...last, content: last.content + delta }
+            return copy
+          })
+        },
       })
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }])
     } catch (err) {
       setError(err.message)
     } finally {
@@ -106,7 +118,9 @@ export default function CrmAssistant() {
               </div>
             </div>
           ))}
-          {loading && <LoadingDots label="Drafting" />}
+          {loading && messages[messages.length - 1]?.role === 'user' && (
+            <LoadingDots label="Drafting" />
+          )}
         </div>
 
         {messages.length === 0 && (
