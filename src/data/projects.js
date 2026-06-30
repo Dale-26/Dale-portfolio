@@ -1,0 +1,51 @@
+// The six portfolio projects. `demo` maps to a key in DemoModal's registry.
+export const projects = [
+  {
+    id: 'content',
+    demo: 'content',
+    title: 'Content Generator',
+    description: 'Generate Thai + English social posts from a single topic.',
+    tags: ['Gemini API', 'Content', 'Social Media'],
+    icon: '✍️',
+  },
+  {
+    id: 'translator',
+    demo: 'translator',
+    title: 'TH ↔ EN Translator',
+    description: 'Translate text between Thai and English with tone control.',
+    tags: ['Gemini API', 'Translation', 'NLP'],
+    icon: '🌐',
+  },
+  {
+    id: 'pipeline',
+    demo: 'pipeline',
+    title: 'Multi-Agent Pipeline',
+    description: 'Watch Writer → Reviewer → Publisher agents hand off content.',
+    tags: ['Gemini API', 'Multi-agent', 'Automation'],
+    icon: '🔗',
+  },
+  {
+    id: 'kpi',
+    demo: 'kpi',
+    title: 'KPI Analyser',
+    description: 'Paste numbers or a data summary → get AI insights.',
+    tags: ['Gemini API', 'Analytics', 'Reporting'],
+    icon: '📊',
+  },
+  {
+    id: 'crm',
+    demo: 'crm',
+    title: 'CRM Assistant',
+    description: 'Draft follow-ups, summarise history, suggest next actions.',
+    tags: ['Gemini API', 'CRM', 'Automation'],
+    icon: '🤝',
+  },
+  {
+    id: 'n8n',
+    demo: 'n8n',
+    title: 'n8n Workflow Explainer',
+    description: 'A visual automation workflow with an AI that explains each node.',
+    tags: ['n8n', 'Automation', 'No-code'],
+    icon: '⚙️',
+  },
+]
