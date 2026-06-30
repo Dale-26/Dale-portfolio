@@ -17,6 +17,14 @@ export const projects = [
     icon: '📥',
   },
   {
+    id: 'webanalyzer',
+    demo: 'webanalyzer',
+    title: 'Web Page Analyzer',
+    description: 'Paste a URL → the server fetches it and AI analyses tone, readability, SEO, and improvements.',
+    tags: ['Web Scraping', 'SEO', 'Structured Output'],
+    icon: '🔍',
+  },
+  {
     id: 'dashboard',
     demo: 'dashboard',
     title: 'AI Dashboard Generator',

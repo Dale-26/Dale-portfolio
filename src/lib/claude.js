@@ -132,6 +132,14 @@ export async function runAgent({ message, onEvent, signal }) {
   }
 }
 
+/**
+ * Fetch and extract a public web page via /api/analyze (server-side fetch).
+ * @returns {Promise<{url, title, description, h1s, wordCount, text}>}
+ */
+export async function fetchPage(url) {
+  return postJSON('/api/analyze', { url })
+}
+
 // --- internals ---------------------------------------------------------------
 
 async function postJSON(url, payload) {

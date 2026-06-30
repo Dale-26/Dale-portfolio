@@ -5,6 +5,7 @@ import LoadingDots from './LoadingDots'
 // bundle and only download when a visitor actually opens a demo.
 const REGISTRY = {
   agent: lazy(() => import('../demos/AgentDemo')),
+  webanalyzer: lazy(() => import('../demos/WebAnalyzer')),
   leadtriage: lazy(() => import('../demos/LeadTriage')),
   dashboard: lazy(() => import('../demos/DashboardGenerator')),
   content: lazy(() => import('../demos/ContentGenerator')),

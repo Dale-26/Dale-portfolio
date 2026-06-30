@@ -68,6 +68,27 @@ export const caseStudies = [
     demo: 'agent',
   },
   {
+    id: 'web-analyzer',
+    icon: '🔍',
+    title: 'AI Web Page Analyzer',
+    tagline: 'Instant content, tone, and SEO audit of any public page',
+    tags: ['Web Scraping', 'SEO', 'Content Ops', 'API Integration'],
+    problem:
+      'Auditing a web page for SEO, tone, readability, and clarity is manual and subjective — and doing it across many pages does not scale.',
+    approach: [
+      'Built a server-side fetcher (with SSRF guards) that pulls a page and extracts its title, meta, headings, and text.',
+      'Feeds the content to AI for a structured audit: summary, audience, tone, readability, SEO score and findings.',
+      'Returns concrete, prioritised improvement suggestions in schema-validated JSON.',
+    ],
+    result: [
+      ['Any URL', 'audited in seconds'],
+      ['0–100', 'objective SEO score + findings'],
+      ['Actionable', 'specific fixes, not vague advice'],
+    ],
+    stack: ['Server-side fetch', 'Gemini API', 'JSON Schema', 'React'],
+    demo: 'webanalyzer',
+  },
+  {
     id: 'dashboard',
     icon: '📊',
     title: 'AI Dashboard Generator',
