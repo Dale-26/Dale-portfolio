@@ -6,6 +6,13 @@ import ErrorMessage from '../components/ErrorMessage'
 
 const SAMPLE = 'https://en.wikipedia.org/wiki/Workflow_automation'
 
+const MODES = [
+  { id: 'SEO', label: 'SEO' },
+  { id: 'Readability', label: 'Readability' },
+  { id: 'Tone & Brand', label: 'Tone & Brand' },
+  { id: 'Accessibility', label: 'Accessibility' },
+]
+
 const SCHEMA = {
   type: 'OBJECT',
   properties: {
@@ -21,10 +28,17 @@ const SCHEMA = {
       },
       required: ['score', 'findings'],
     },
+    keywords: { type: 'ARRAY', items: { type: 'STRING' } },
+    suggestedKeywords: { type: 'ARRAY', items: { type: 'STRING' } },
+    meta: {
+      type: 'OBJECT',
+      properties: { title: { type: 'STRING' }, description: { type: 'STRING' } },
+      required: ['title', 'description'],
+    },
     keyPoints: { type: 'ARRAY', items: { type: 'STRING' } },
     improvements: { type: 'ARRAY', items: { type: 'STRING' } },
   },
-  required: ['summary', 'audience', 'tone', 'readability', 'seo', 'keyPoints', 'improvements'],
+  required: ['summary', 'audience', 'tone', 'readability', 'seo', 'keywords', 'suggestedKeywords', 'meta', 'keyPoints', 'improvements'],
 }
 
 function scoreColor(s) {
@@ -35,10 +49,18 @@ function scoreColor(s) {
 
 export default function WebAnalyzer() {
   const [url, setUrl] = useState('')
+  const [mode, setMode] = useState('SEO')
   const [status, setStatus] = useState('') // 'fetching' | 'analysing' | ''
   const [error, setError] = useState('')
   const [page, setPage] = useState(null)
   const [analysis, setAnalysis] = useState(null)
+  const [copied, setCopied] = useState('')
+
+  function copy(key, value) {
+    navigator.clipboard?.writeText(value)
+    setCopied(key)
+    setTimeout(() => setCopied(''), 1500)
+  }
 
   async function analyze(e) {
     e.preventDefault()
@@ -52,7 +74,9 @@ export default function WebAnalyzer() {
       setPage(fetched)
 
       setStatus('analysing')
-      const content = `URL: ${fetched.url}
+      const content = `FOCUS: ${mode}
+
+URL: ${fetched.url}
 Title: ${fetched.title}
 Meta description: ${fetched.description || '(none)'}
 H1 headings: ${fetched.h1s?.join(' | ') || '(none)'}
@@ -87,6 +111,23 @@ ${fetched.text}`
           placeholder="https://example.com/page"
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent"
         />
+        <div className="flex flex-wrap gap-1.5">
+          {MODES.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => setMode(m.id)}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                mode === m.id
+                  ? 'bg-accent text-white'
+                  : 'border border-slate-300 text-slate-600 hover:border-accent'
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -143,6 +184,40 @@ ${fetched.text}`
             <p className="mt-2 text-xs text-slate-500">Audience: {analysis.audience}</p>
           </div>
 
+          {/* Suggested meta */}
+          {analysis.meta && (
+            <div className="rounded-xl border border-slate-200 p-4">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Suggested meta tags
+              </h4>
+              <div className="space-y-2">
+                {[
+                  ['title', 'Title', analysis.meta.title],
+                  ['desc', 'Description', analysis.meta.description],
+                ].map(([key, label, value]) => (
+                  <div key={key} className="flex items-start gap-2">
+                    <span className="w-20 flex-shrink-0 text-xs text-slate-400">{label}</span>
+                    <p className="flex-1 text-sm text-slate-700">{value}</p>
+                    <button
+                      onClick={() => copy(key, value)}
+                      className="flex-shrink-0 rounded-md border border-slate-300 px-2 py-0.5 text-xs text-slate-600 hover:border-accent hover:text-accent"
+                    >
+                      {copied === key ? '✓' : 'Copy'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Keywords */}
+          {(analysis.keywords?.length > 0 || analysis.suggestedKeywords?.length > 0) && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Chips title="Detected keywords" items={analysis.keywords} />
+              <Chips title="Suggested keywords" items={analysis.suggestedKeywords} accent />
+            </div>
+          )}
+
           <div className="grid gap-4 md:grid-cols-2">
             <Section title="SEO findings" items={analysis.seo?.findings} />
             <Section title="Key points" items={analysis.keyPoints} />
@@ -150,6 +225,27 @@ ${fetched.text}`
           <Section title="Suggested improvements" items={analysis.improvements} accent />
         </div>
       )}
+    </div>
+  )
+}
+
+function Chips({ title, items, accent }) {
+  if (!items?.length) return null
+  return (
+    <div>
+      <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</h4>
+      <div className="flex flex-wrap gap-1.5">
+        {items.map((k, i) => (
+          <span
+            key={i}
+            className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+              accent ? 'bg-accent-light text-accent-dark' : 'bg-slate-100 text-slate-600'
+            }`}
+          >
+            {k}
+          </span>
+        ))}
+      </div>
     </div>
   )
 }
